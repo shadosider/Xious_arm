@@ -24,11 +24,24 @@ source /opt/ros/humble/setup.bash
 set -u
 
 router_pid=""
-ROBONIX_MANIFEST="$DEPLOY_DIR/robonix_manifest.yaml"
+export ROBONIX_MANIFEST="$DEPLOY_DIR/robonix_manifest.yaml"
 MANIFEST="${ROBONIX_MANIFEST:-$DEPLOY_DIR/robonix_manifest.yaml}"
 stack_started=0
 
 cleanup() {
+  local status=$?
+  trap - EXIT INT TERM
+  # `rbnx boot` records every process group in state.json.  Always use that
+  # record on shell exit so Ctrl-C cannot leave drivers or system services
+  # orphaned under init.
+  if [[ "$stack_started" == "1" && -f "$DEPLOY_DIR/rbnx-boot/state.json" ]]; then
+    rbnx shutdown -f "$MANIFEST" || true
+  fi
+  if [[ -n "$router_pid" ]]; then
+    kill -TERM "$router_pid" 2>/dev/null || true
+    wait "$router_pid" 2>/dev/null || true
+  fi
+  exit "$status"
 }
 trap cleanup EXIT
 trap 'exit 130' INT
@@ -88,6 +101,8 @@ PY
     done
   fi
 fi
+
+echo "can is ok!"
 
 stack_started=1
 rbnx boot --no-update-check -f "$MANIFEST" "$@"

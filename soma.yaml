@@ -75,21 +75,6 @@ robot:
                   capabilities:
                     - { path: robonix/primitive/arm/pos_cmd, description: "Command the Piper gripper through the arm command topic." }
 
-            - id: wrist_camera
-              type: rgbd_camera
-              exports:
-                - provider_id: orbbec_wrist_camera
-                  capabilities:
-                    - { path: robonix/primitive/camera/rgb, description: "Stream wrist Orbbec DC1 RGB images for Piper object detection." }
-                    - { path: robonix/primitive/camera/depth, description: "Stream wrist Orbbec DC1 depth images when enabled." }
-                    - { path: robonix/primitive/camera/camera_info, description: "Publish wrist Orbbec DC1 color camera intrinsics." }
-                - provider_id: llm_detect
-                  capabilities:
-                    - { path: robonix/service/perception/object_detect/detect_object, description: "Detect named objects in the wrist camera image." }
-                - provider_id: grasp_pose
-                  capabilities:
-                    - { path: robonix/service/perception/grasp_pose/grasp_request, description: "Convert a 2D detection into a fixed-height vertical grasp pose." }
-
 description:
   summary: >-
     Arm-only grasp debug profile of the Ranger Mini v3 + Piper deploy. The

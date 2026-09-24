@@ -43,18 +43,6 @@ primitive:
     branch: main
     manifest: package_manifest.native.yaml
 
-  # Wrist-mounted Orbbec Dabai DC1 used by the Piper grasp pipeline. Its
-  # provider id is intentionally distinct from the (absent) front Gemini.
-  - name: orbbec_wrist_camera
-    url: https://github.com/syswonder/primitive-orbbec-dabai_dcw-camera-rbnx
-    branch: main
-    config:
-      serial_number: "CC15C4300F2"
-      enable_depth: false
-      depth_registration: false
-      color_width: 1280
-      color_height: 720
-      color_format: YUYV
 
   - name: piper_ctl
     url: https://github.com/syswonder/primitive-agilex-piper-arm-rbnx
@@ -69,21 +57,6 @@ primitive:
       sentinel_timeout_s: 30.0
 
 service:
-  - name: llm_detect
-    url: https://github.com/syswonder/service-object-detect-rbnx
-    branch: main
-    config:
-      llm_base_url: ${VLM_BASE_URL}
-      llm_api_key: ${VLM_API_KEY}
-      llm_model: ${VLM_MODEL}
-      llm_timeout_s: 60.0
-      camera_provider_id: orbbec_wrist_camera
-      temperature: 0.0
-      rotation_cam2arm: true
-      skip_depth: true
-      rgb_topic: ""
-      camera_info_topic: ""
-
   - name: grasp_pose
     url: https://github.com/syswonder/service-grasp-pose-rbnx
     branch: feature/orientation-detection

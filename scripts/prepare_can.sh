@@ -12,7 +12,6 @@
 # cable is replugged into a different socket; the names below are pinned to
 # adapter serial numbers by systemd .link files in /etc/systemd/network/:
 #
-#   70-can-candlelight.link  ->  can_ranger
 #   71-can-piper.link        ->  can_piper
 #
 # Every value can be overridden from the environment, so another robot can
@@ -23,8 +22,6 @@ set -euo pipefail
 DEPLOY_DIR="${ROBONIX_DEPLOY_DIR:-$(cd "$(dirname "$0")/.." && pwd)}"
 MANIFEST="${ROBONIX_MANIFEST:-$DEPLOY_DIR/robonix_manifest.yaml}"
 
-RANGER_CAN_INTERFACE="${RANGER_CAN_INTERFACE:-can_ranger}"
-RANGER_CAN_BITRATE="${RANGER_CAN_BITRATE:-500000}"
 PIPER_CAN_INTERFACE="${PIPER_CAN_INTERFACE:-can_piper}"
 PIPER_CAN_BITRATE="${PIPER_CAN_BITRATE:-1000000}"
 PIPER_CAN_SETUP_SCRIPT="${PIPER_CAN_SETUP_SCRIPT:-$DEPLOY_DIR/rbnx-boot/cache/primitive-agilex-piper-arm-rbnx/scripts/can_activate.sh}"
@@ -94,20 +91,6 @@ check_traffic() {
   return 0
 }
 
-prepare_ranger() {
-  local iface="$RANGER_CAN_INTERFACE" bitrate="$RANGER_CAN_BITRATE"
-  require_interface "$iface" "/etc/systemd/network/70-can-candlelight.link" || return 1
-  if ! can_ready "$iface" "$bitrate"; then
-    echo "[can] configuring $iface at $bitrate bps" >&2
-    "${elevate[@]}" ip link set "$iface" down 2>/dev/null || true
-    "${elevate[@]}" ip link set "$iface" type can bitrate "$bitrate"
-    "${elevate[@]}" ip link set "$iface" up
-    can_ready "$iface" "$bitrate" || { echo "[can] $iface is not UP at $bitrate bps" >&2; return 1; }
-  fi
-  check_traffic "$iface" "$bitrate" \
-    "the chassis is switched off, or its remote holds it in remote-control mode"
-  echo "[can] $iface ready at $bitrate bps ($(can_bus_info "$iface"))" >&2
-}
 
 prepare_piper() {
   local iface="$PIPER_CAN_INTERFACE" bitrate="$PIPER_CAN_BITRATE"
@@ -145,5 +128,4 @@ retry() {
   return 1
 }
 
-retry "Ranger CAN" prepare_ranger
 retry "Piper CAN" prepare_piper
