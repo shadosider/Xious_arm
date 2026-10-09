@@ -15,6 +15,11 @@ name: robot-xious-arm
 
 env:
   LOG: "INFO"
+  ROS_DOMAIN_ID: "0"
+  RMW_IMPLEMENTATION: rmw_zenoh_cpp
+  #EASY_HANDEYE2_CALIB_NAME:    my_eih_calib                # default
+  #EASY_HANDEYE2_CALIB_PATH:    /home/yzq/robot-xious-arm/config/calibration/my_eih_calib.calib          # absolute (wins)
+  #EASY_HANDEYE2_FORCE_STAGE:   "0"                         # overwrite ~/.ros2 staged
 
 system:
   atlas:
@@ -34,6 +39,7 @@ system:
   soma:
     listen: 127.0.0.1:50091
     robot_yaml: soma.yaml
+  liaison:  { listen: 127.0.0.1:50081, log: info }
 
 primitive:
   # Publishes the Soma-owned URDF as /robot_description and the standard TF
@@ -55,8 +61,39 @@ primitive:
       gripper_exist: true
       gripper_val_mutiple: 2
       sentinel_timeout_s: 30.0
+  
+  - name: orbbec_wrist_camera
+    url: https://github.com/syswonder/primitive-orbbec-dabai_dcw-camera-rbnx
+    branch: main
+    config:
+      serial_number: "AYZG753004R"
+      enable_depth: false
+      depth_registration: false
+      color_width: 1920
+      color_height: 1080
+      color_format: MJPG
+
+  #- name: easy_handeye2
+  #  url: https://github.com/syswonder/primitive-agilex-piper-handeye-rbnx
+  #  branch: main
+  #  config: {}
 
 service:
+  - name: llm_detect
+    url: https://github.com/syswonder/service-object-detect-rbnx
+    branch: main
+    config:
+      llm_base_url: ${VLM_BASE_URL}
+      llm_api_key: ${VLM_API_KEY}
+      llm_model: ${VLM_MODEL}
+      llm_timeout_s: 60.0
+      camera_provider_id: orbbec_wrist_camera
+      temperature: 0.0
+      rotation_cam2arm: true
+      skip_depth: true
+      rgb_topic: ""
+      camera_info_topic: ""
+
   - name: grasp_pose
     url: https://github.com/syswonder/service-grasp-pose-rbnx
     branch: feature/orientation-detection
