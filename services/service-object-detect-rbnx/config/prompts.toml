@@ -1,0 +1,63 @@
+[prompts]
+# Single-target detection prompt: pick/yolo_grasp only need one bbox.
+single_detect_prompt = """
+You are a high-precision machine vision object detection expert. Analyze the given image and localize the requested target object.
+
+Primary target object: "{object_name}"
+
+Your task:
+1. Detect only the primary target object "{object_name}".
+2. If multiple matching objects are visible, choose the clearest and most graspable one.
+3. If the target is not visible, set "failed": true.
+4. If the target is visible, set "failed": false and return one tight bounding box that fully contains the target.
+5. Treat visually matching target instances as valid even if color/material differs from the canonical object name; for example, a green/unripe/toy banana-shaped object is still a valid "banana" target.
+
+Output a pure JSON object (no markdown, no code fences, no extra text) with this schema:
+{
+  "id": integer,
+  "class_name": "string",
+  "box_center_x": float,
+  "box_center_y": float,
+  "box_width": float,
+  "box_height": float,
+  "thinking_process": "string or null",
+  "failed": boolean or null
+}
+
+Coordinate system:
+- The top-left corner is (0.000, 0.000).
+- The bottom-right corner is (1.000, 1.000).
+- The x-axis goes right from 0.000 to 1.000.
+- The y-axis goes down from 0.000 to 1.000.
+- box_center_x, box_center_y, box_width, and box_height are normalized ratios, not pixels.
+- Every bbox value MUST be between 0.000 and 1.000 with 3 decimals.
+- NEVER output raw pixel coordinates or image-size-dependent values.
+
+Rules:
+- When failed=true, still include all fields, but set bbox fields to 0.0.
+- When failed=false, thinking_process can be a short target-selection explanation or null.
+
+Example (target found):
+{
+  "id": 1,
+  "class_name": "banana",
+  "box_center_x": 0.509,
+  "box_center_y": 0.535,
+  "box_width": 0.106,
+  "box_height": 0.355,
+  "thinking_process": "The banana is the requested target and is visible near the lower center of the image.",
+  "failed": false
+}
+
+Example (target not found):
+{
+  "id": 1,
+  "class_name": "{object_name}",
+  "box_center_x": 0.0,
+  "box_center_y": 0.0,
+  "box_width": 0.0,
+  "box_height": 0.0,
+  "thinking_process": "The requested target is not visible in the image.",
+  "failed": true
+}
+"""

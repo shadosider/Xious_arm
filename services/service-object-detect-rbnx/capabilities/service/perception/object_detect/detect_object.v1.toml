@@ -1,0 +1,32 @@
+# Detect a named object in the most recent synchronized RGB + depth +
+# camera_info sample; return its 2D bbox (+ 3D centroid in the camera optical
+# frame when depth is enabled).
+#
+# TWO detector backends are resident; the request's `backend` field picks one
+# per call:
+#   "yolo" — host-side GPU YOLO server, fine-tuned on carrot/potato/tomato.
+#            Highest accuracy for those three, and an ORIENTED box: its
+#            bbox_2d carries a 5th element (OBB rotation in degrees).
+#   "vlm"  — OpenAI-compatible vision model, open-vocabulary (any object
+#            described in words); bbox_2d has the usual 4 elements.
+#   ""     — use the service's configured default (`detect_backend`).
+# Callers normally leave `backend` empty and invoke a pick/grab skill, which
+# sets it: pick/grab → yolo, pick_general/grab_general → vlm.
+#
+# Implementation: the VLM backend converts the model's normalized bbox to
+# pixels; the yolo backend forwards the frame to the host GPU server
+# (docker/host-services/yolo_detect_server.py) and passes its detections
+# through verbatim. 3D back-projection (VLM path, depth enabled) uses the
+# median depth inside the 2D bbox and the camera_info K matrix (same
+# algorithm as yolo_world_rbnx).
+#
+# IDL: lib/perception/srv/DetectObject.srv (package-local), exposed only
+# through the atlas-routed MCP surface.
+[contract]
+id      = "robonix/service/perception/object_detect/detect_object"
+version = "1"
+kind    = "service"
+idl     = "perception/srv/DetectObject.srv"
+
+[mode]
+type = "rpc"

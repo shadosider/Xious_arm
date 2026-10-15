@@ -1,0 +1,10 @@
+# RK3588（无 CUDA）的 CPU 版 torch 二件套。这份单独装（setup_venv.sh 先装它，
+# 再装 requirements.txt）。
+#
+# RK3588 是 Rockchip SoC，没有 CUDA（只有 Mali GPU + RKNN NPU，后者这套栈没用），
+# 所以装 PyPI/镜像站上 aarch64 的 CPU-only 轮子（manylinux_2_28_aarch64），推理
+# 走 CPU。版本对齐 Thor 那套（torch 2.11 / torchvision 0.26），与 ultralytics 8.4.37
+# 的搭配和 Thor 部署一致。
+--index-url https://mirrors.ustc.edu.cn/pypi/simple
+torch==2.11.0
+torchvision==0.26.0

@@ -1,0 +1,9 @@
+# Orin（sm_87）的 torch 三件套。这份单独装（setup_venv.sh 先装它，再装 requirements.txt）。
+#
+# 为什么要单独一份、而且索引只能给一个：PyPI/镜像站上 aarch64 的轮子是
+# manylinux 编的，没有 sm_87 的 kernel，装上去模型能加载、到第一次推理才报
+# "no kernel image is available"。而只要同时给出镜像站，uv 就会挑到它那份
+# （实测：主索引给 Jetson、额外索引给镜像站，选中的仍是镜像站那个轮子）。
+--index-url https://pypi.jetson-ai-lab.io/jp6/cu126
+torch==2.10.0
+torchvision==0.25.0

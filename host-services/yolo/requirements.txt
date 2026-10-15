@@ -1,0 +1,9 @@
+# YOLO 检测服务（:8770）的平台无关依赖，走中科大镜像。
+# torch / torchvision 不在这里：它们随平台不同，见 torch-{orin,thor,cpu,x86}.txt
+# （setup_venv.sh 会先装那一份，再装这份）。
+--index-url https://mirrors.ustc.edu.cn/pypi/simple
+ultralytics==8.4.37
+ultralytics-thop==2.0.18
+opencv-python==4.13.0.92
+numpy==2.2.6
+pillow==12.2.0

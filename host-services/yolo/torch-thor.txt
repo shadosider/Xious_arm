@@ -1,0 +1,5 @@
+# Thor（sm_110，CUDA 13）的 torch 三件套：PyPI 上 aarch64 的 cu130 轮子带 sm_110，
+# 走镜像站就行。
+--index-url https://mirrors.ustc.edu.cn/pypi/simple
+torch==2.11.0
+torchvision==0.26.0

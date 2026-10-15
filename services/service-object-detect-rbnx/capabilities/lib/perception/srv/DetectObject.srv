@@ -1,0 +1,31 @@
+# Request: object name to detect
+string object_name
+
+# Detector backend to use for THIS call. The service keeps both backends
+# resident; this picks which one answers:
+#   "yolo" — host GPU YOLO server, fine-tuned on carrot/potato/tomato.
+#   "vlm"  — OpenAI-compatible vision model, general/open-vocabulary.
+#   ""     — use the service's configured default backend.
+string backend
+
+---
+# Response: 2D bounding box in image coordinates
+# If detection fails, success will be false
+
+# 2D bounding box in pixel coordinates [x_min, y_min, x_max, y_max].
+# The `yolo` backend appends a 5th element — the oriented-box rotation in
+# degrees — used downstream for gripper-yaw estimation; consumers must NOT
+# assume a fixed length of 4. Empty on failure.
+float64[] bbox_2d
+
+# 3D center position of the object in camera frame [x, y, z] in meters
+float64[] object_center_3d
+
+# Detection confidence score
+float32 confidence
+
+# Success flag
+bool success
+
+# Status message
+string message

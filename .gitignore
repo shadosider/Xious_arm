@@ -3,3 +3,4 @@ rbnx-boot/
 __pycache__/
 *.pyc
 .venv/
+.env

@@ -1,0 +1,12 @@
+# x86_64（开发机 / 无 NVIDIA GPU 的 VM）的 CPU 版 torch 二件套。这份单独装
+# （setup_venv.sh 先装它，再装 requirements.txt）。
+#
+# x86_64 上没有 CUDA（nvidia-smi 不通）→ 装 CPU-only 轮子。注意 PyPI/镜像站上
+# x86_64 的 torch 是 CUDA 版轮子，会拖几个 GB 的 nvidia-* 依赖；CPU-only 轮子只在
+# PyTorch 自己的索引上，而中科大只镜像 PyPI、不镜像这棵 wheel 树（404），所以走
+# 南大镜像（download.pytorch.org/whl/cpu 的完整镜像，实测比源站快约 3 倍）。
+# 版本对齐 Thor / RK3588（torch 2.11 / torchvision 0.26），与 ultralytics 8.4.37
+# 的搭配和板子上一致。
+--index-url https://mirror.nju.edu.cn/pytorch/whl/cpu
+torch==2.11.0
+torchvision==0.26.0
